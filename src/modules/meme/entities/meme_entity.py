@@ -12,4 +12,8 @@ class MemeEntity(BaseModel):
     updated_at: Optional[datetime] = Field(default=None)
 
     def last_updated_at(self) -> str:
-        return self.updated_at.strftime("%d/%m/%Y %H:%M:%S") if self.updated_at else "Nunca"
+        return (
+            self.updated_at.strftime("%d/%m/%Y %H:%M:%S")
+            if self.updated_at
+            else "Nunca"
+        )

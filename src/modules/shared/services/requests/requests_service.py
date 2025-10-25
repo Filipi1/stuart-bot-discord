@@ -24,17 +24,21 @@ class RequestsService(HttpAdapter):
     ) -> Dict[str, Any]:
         try:
             url = f"{self.__base_url}{path}"
-            
+
             match method:
                 case HTTPMethod.GET:
-                    response = requests.get(url, headers=headers, params=params, json=body)
+                    response = requests.get(
+                        url, headers=headers, params=params, json=body
+                    )
                 case HTTPMethod.POST:
-                    response = requests.post(url, headers=headers, params=params, json=body)
+                    response = requests.post(
+                        url, headers=headers, params=params, json=body
+                    )
                 case _:
                     raise NotImplementedError(f"Método HTTP {method} não implementado")
-            
+
             return self.__get_response(response)
-            
+
         except RequestException as request_error:
             self.__logger.error(f"Erro na requisição: {request_error}")
             raise request_error

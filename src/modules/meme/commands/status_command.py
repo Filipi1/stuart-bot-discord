@@ -3,14 +3,14 @@ from modules.shared.adapters import BotCommand
 from container import container
 
 
-class IamCommand(BotCommand):
+class StatusCommand(BotCommand):
     def __init__(self):
-        self.get_meme_service = container.get_meme
+        self.get_memes_status_service = container.get_memes_status
         super().__init__(
-            name="eusou", description="Comando para sortear memes", options=[]
+            name="info", description="Informações sobre o status dos memes", options=[]
         )
 
     async def process(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer()
-        embed = await self.get_meme_service.process()
+        embed = await self.get_memes_status_service.process()
         await interaction.followup.send(embed=embed, ephemeral=False)

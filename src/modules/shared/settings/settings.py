@@ -1,6 +1,7 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
     APP_ENV: str = Field(default="production")
     BOT_TOKEN: str

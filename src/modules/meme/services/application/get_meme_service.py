@@ -15,13 +15,13 @@ class GetMemeApplicationService(DomainService):
     async def process(self) -> discord.Embed:
         entity: MemeEntity = await self.__fetch_meme_service.process()
         self.logger.dict_to_table(entity.model_dump())
-        
+
         embed = discord.Embed(
             title=f"Você é {entity.title}",
             description=entity.description,
-            color=0xff6b6b
+            color=0xFF6B6B,
         )
-        
+
         embed.set_image(url=entity.image)
         embed.set_footer(text=f"🧘 {entity.earned_times} personificações.")
         return embed

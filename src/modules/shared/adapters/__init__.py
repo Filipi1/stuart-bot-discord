@@ -5,4 +5,10 @@ from .service.domain_service_adapter import DomainService
 from .service.repository_adapter import RepositoryAdapter
 
 
-__all__ = ["BotCommand", "HttpAdapter", "ApplicationService", "DomainService", "RepositoryAdapter"]
+__all__ = [
+    "BotCommand",
+    "HttpAdapter",
+    "ApplicationService",
+    "DomainService",
+    "RepositoryAdapter",
+]

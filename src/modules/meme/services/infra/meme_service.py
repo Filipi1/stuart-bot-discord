@@ -1,4 +1,7 @@
 from http import HTTPMethod
+from modules.meme.dtos.fetch_current_memes_count.fetch_memes_status_response_dto import (
+    FetchMemesStatusResponseDto,
+)
 from modules.meme.entities import MemeEntity
 from modules.shared.adapters.http.http_adapter import HttpAdapter
 from modules.shared.adapters.service.infra_service_adapter import InfraServiceAdapter
@@ -15,3 +18,10 @@ class MemeService(InfraServiceAdapter):
             HTTPMethod.GET,
         )
         return MemeEntity(**response)
+
+    async def get_memes_status(self) -> FetchMemesStatusResponseDto:
+        response = await self.__http_service.request(
+            "v1/meme/status",
+            HTTPMethod.GET,
+        )
+        return FetchMemesStatusResponseDto(**response)
