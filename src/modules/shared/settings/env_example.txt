@@ -1,0 +1,14 @@
+# Exemplo de arquivo .env para o Stuart Bot Discord
+
+APP_ENV=development
+BOT_TOKEN=seu_token_do_discord_aqui
+STUART_API_BASE_URL=https://sua-api-stuart.com
+
+# Como obter o BOT_TOKEN:
+# 1. Acesse https://discord.com/developers/applications
+# 2. Crie uma nova aplicação ou selecione uma existente
+# 3. Vá para a aba "Bot"
+# 4. Copie o token e cole aqui
+
+# Como obter o STUART_API_BASE_URL:
+# Use a URL base da sua API do Stuart (mesma usada no bot do Telegram)
