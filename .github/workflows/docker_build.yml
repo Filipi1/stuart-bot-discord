@@ -31,7 +31,7 @@ jobs:
 
     - name: Set lowercase repository name
       run: |
-        echo "REPO_NAME=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/stuart-api" >> $GITHUB_ENV
+        echo "REPO_NAME=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/stuart-bot-discord" >> $GITHUB_ENV
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
