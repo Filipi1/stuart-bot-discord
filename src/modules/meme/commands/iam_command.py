@@ -12,5 +12,5 @@ class IamCommand(BotCommand):
 
     async def process(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer()
-        embed = await self.get_meme_service.process()
+        embed = await self.get_meme_service.process(interaction.user.name)
         await interaction.followup.send(embed=embed, ephemeral=False)

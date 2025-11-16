@@ -1,3 +1,5 @@
+from modules.auth.services.domain.generate_identifier_token_service import GenerateIdentifierTokenDomainService
+from modules.auth.services.infra.auth_service import AuthService
 from modules.meme.services.application.get_meme_service import GetMemeApplicationService
 from modules.meme.services.application.get_memes_count import GetMemesCountApplicationService
 from modules.meme.services.application.get_memes_status import GetMemesStatusApplicationService
@@ -15,8 +17,10 @@ class Containers:
         self.__http_service = RequestsService(
             base_url=self.__settings.STUART_API_BASE_URL
         )
+        self.__auth_service = AuthService(http_service=self.__http_service)
         self.__meme_service = MemeService(http_service=self.__http_service)
-        self.__fetch_meme = FetchMemeDomainService(meme_service=self.__meme_service)
+        self.__generate_identifier_token_service = GenerateIdentifierTokenDomainService(auth_service=self.__auth_service)
+        self.__fetch_meme = FetchMemeDomainService(meme_service=self.__meme_service, generate_identifier_token_service=self.__generate_identifier_token_service)
         self.__fetch_memes_status = FetchMemesStatusDomainService(meme_service=self.__meme_service)
 
         # Application

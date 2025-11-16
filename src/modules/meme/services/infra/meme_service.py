@@ -12,10 +12,11 @@ class MemeService(InfraServiceAdapter):
         self.__http_service = http_service
         super().__init__(MemeService.__name__)
 
-    async def get_meme(self) -> MemeEntity:
+    async def get_meme(self, request_token: str) -> MemeEntity:
         response = await self.__http_service.request(
             "v1/meme",
             HTTPMethod.GET,
+            headers={"X-Request-Token": request_token}
         )
         return MemeEntity(**response)
 

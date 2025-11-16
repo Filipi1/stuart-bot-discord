@@ -22,8 +22,8 @@ class RequestsService(HttpAdapter):
         params: Optional[dict] = None,
         body: Optional[dict] = None,
     ) -> Dict[str, Any]:
+        url = f"{self.__base_url}{path}"
         try:
-            url = f"{self.__base_url}{path}"
 
             match method:
                 case HTTPMethod.GET:
@@ -49,6 +49,7 @@ class RequestsService(HttpAdapter):
         return self.__exception_handler(response)
 
     def __exception_handler(self, response: requests.Response) -> None:
+        self.__logger.dict_to_table(response.json())
         result = response.text
         self.__logger.error(f"[{response.status_code}] Request failed: {result}")
         raise HttpException(response.status_code, result)

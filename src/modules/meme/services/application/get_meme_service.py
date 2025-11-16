@@ -12,8 +12,8 @@ class GetMemeApplicationService(DomainService):
         self.__fetch_meme_service = fetch_meme_service
         super().__init__(GetMemeApplicationService.__name__)
 
-    async def process(self) -> discord.Embed:
-        entity: MemeEntity = await self.__fetch_meme_service.process()
+    async def process(self, username: str) -> discord.Embed:
+        entity: MemeEntity = await self.__fetch_meme_service.process(username)
         self.logger.dict_to_table(entity.model_dump())
 
         embed = discord.Embed(
