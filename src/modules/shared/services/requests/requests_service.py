@@ -24,7 +24,7 @@ class RequestsService(HttpAdapter):
     ) -> Dict[str, Any]:
         url = f"{self.__base_url}{path}"
         try:
-
+            self.__logger.info(f"Requesting {method.value} - {url}...")
             match method:
                 case HTTPMethod.GET:
                     response = requests.get(

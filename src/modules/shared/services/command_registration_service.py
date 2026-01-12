@@ -2,6 +2,7 @@ import discord
 from typing import Dict
 from modules.shared.adapters import BotCommand
 from modules.shared.services import CommandDiscoveryService
+from modules.shared.services.requests.exceptions import HttpException
 
 
 class CommandRegistrationService:
@@ -29,6 +30,36 @@ class CommandRegistrationService:
 
         self.tree.add_command(discord_command)
 
+    async def _handle_error(self, interaction: discord.Interaction, error: Exception, command_name: str) -> None:
+        """Trata erros e envia resposta ao Discord"""
+        print(f"Erro ao executar comando {command_name}: {error}")
+        
+        # Determina a mensagem de erro baseada no tipo de exceção
+        if isinstance(error, HttpException):
+            if error.status_code == 404:
+                error_message = "❌ Recurso não encontrado. Verifique se a API está funcionando corretamente."
+            elif error.status_code >= 500:
+                error_message = "❌ Erro no servidor. Tente novamente mais tarde."
+            elif error.status_code == 401:
+                error_message = "❌ Não autorizado. Verifique suas credenciais."
+            elif error.status_code == 403:
+                error_message = "❌ Acesso negado."
+            else:
+                error_message = f"❌ Erro HTTP {error.status_code}: {error.message}"
+        else:
+            error_message = "❌ Ocorreu um erro ao processar o comando. Tente novamente mais tarde."
+
+        # Verifica se já foi feito o defer/response
+        try:
+            if interaction.response.is_done():
+                # Se já foi feito o defer, usa followup
+                await interaction.followup.send(error_message, ephemeral=True)
+            else:
+                # Se ainda não foi feito, usa response
+                await interaction.response.send(error_message, ephemeral=True)
+        except Exception as e:
+            print(f"Erro ao enviar mensagem de erro ao Discord: {e}")
+
     def _create_specific_callback(self, command: BotCommand):
         # Se não tem opções, cria callback simples
         if not command.options:
@@ -37,7 +68,7 @@ class CommandRegistrationService:
                 try:
                     await command.process(interaction)
                 except Exception as e:
-                    print(f"Erro ao executar comando {command.name}: {e}")
+                    await self._handle_error(interaction, e, command.name)
 
             return callback
 
@@ -50,7 +81,7 @@ class CommandRegistrationService:
                 try:
                     await command.process(interaction, name)
                 except Exception as e:
-                    print(f"Erro ao executar comando {command.name}: {e}")
+                    await self._handle_error(interaction, e, command.name)
 
             return callback
         else:
@@ -65,7 +96,7 @@ class CommandRegistrationService:
                         params = {param_names[0]: param1, param_names[1]: param2}
                         await command.process(interaction, **params)
                     except Exception as e:
-                        print(f"Erro ao executar comando {command.name}: {e}")
+                        await self._handle_error(interaction, e, command.name)
 
                 return callback
             else:
@@ -74,7 +105,7 @@ class CommandRegistrationService:
                     try:
                         await command.process(interaction)
                     except Exception as e:
-                        print(f"Erro ao executar comando {command.name}: {e}")
+                        await self._handle_error(interaction, e, command.name)
 
                 return callback
 

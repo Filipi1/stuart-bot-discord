@@ -25,11 +25,13 @@ class GetMemesStatusApplicationService(DomainService):
         embed.add_field(name="Total de memes", value=response.total_memes)
         embed.add_field(
             name="Meme mais antigo que ainda não foi sorteado",
-            value=response.oldest_unsorted_meme_date,
+            value=response.oldest_unsorted_meme_date or "Todos os memes já foram sorteados",
+            inline=False,
         )
         embed.add_field(
             name="Quantidade de memes que ainda não foram sorteados",
             value=response.unsorted_memes_count,
+            inline=False,
         )
         embed.add_field(
             name="Meme mais sorteado", value=response.most_sorted_meme.title

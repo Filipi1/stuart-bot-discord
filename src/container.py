@@ -1,5 +1,8 @@
 from modules.auth.services.domain.generate_identifier_token_service import GenerateIdentifierTokenDomainService
 from modules.auth.services.infra.auth_service import AuthService
+from modules.coach.services.application.get_coach_service import GetCoachApplicationService
+from modules.coach.services.domain.fetch_coach_service import FetchCoachDomainService
+from modules.coach.services.infra.coach_service import CoachService
 from modules.meme.services.application.get_meme_service import GetMemeApplicationService
 from modules.meme.services.application.get_memes_count import GetMemesCountApplicationService
 from modules.meme.services.application.get_memes_status import GetMemesStatusApplicationService
@@ -19,13 +22,16 @@ class Containers:
         )
         self.__auth_service = AuthService(http_service=self.__http_service)
         self.__meme_service = MemeService(http_service=self.__http_service)
+        self.__coach_service = CoachService(http_service=self.__http_service)
         self.__generate_identifier_token_service = GenerateIdentifierTokenDomainService(auth_service=self.__auth_service)
         self.__fetch_meme = FetchMemeDomainService(meme_service=self.__meme_service, generate_identifier_token_service=self.__generate_identifier_token_service)
         self.__fetch_memes_status = FetchMemesStatusDomainService(meme_service=self.__meme_service)
+        self.__fetch_coach = FetchCoachDomainService(coach_service=self.__coach_service)
 
         # Application
         self.get_meme = GetMemeApplicationService(fetch_meme_service=self.__fetch_meme)
         self.get_memes_status = GetMemesStatusApplicationService(fetch_memes_status_service=self.__fetch_memes_status)
         self.get_memes_count = GetMemesCountApplicationService(fetch_memes_status_service=self.__fetch_memes_status)
+        self.get_coach = GetCoachApplicationService(fetch_coach_service=self.__fetch_coach)
 
 container = Containers()
