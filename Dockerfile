@@ -14,13 +14,15 @@ RUN uv sync --frozen --no-dev
 
 COPY src/ ./src/
 
-RUN useradd -m -u 1000 botuser && chown -R botuser:botuser /app
-USER botuser
+# Cria usuário e ajusta permissões
+RUN useradd -m -u 1000 botuser && \
+    chown -R botuser:botuser /app
 
 ENV PATH="/app/.venv/bin:$PATH"
-
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-CMD ["python", "src/main.py"]
+USER botuser
+
+CMD ["/app/.venv/bin/python", "src/main.py"]
 

@@ -1,0 +1,15 @@
+services:
+  stuart-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stuart-bot-discord
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - stuart-network
+
+networks:
+  stuart-network:
+    driver: bridge
