@@ -18,13 +18,29 @@ class GetMemesStatusApplicationService(DomainService):
         super().__init__(GetMemesStatusApplicationService.__name__)
 
     def __format_date(self, date_str: str) -> str:
-        """Formata a data de ISO para 'Meme criado em DD/MM/YYYY às HH:MM:SS'"""
+        """Formata a data de ISO para 'Meme criado em DD/MM/YYYY às HH:MM:SS'
+        
+        Suporta múltiplos formatos ISO:
+        - 2022-09-11T21:00:08
+        - 2022-09-11T21:00:08.668859
+        - 2022-09-11T21:00:08Z
+        - 2022-09-11 21:00:08
+        - 2022-09-11 21:00:08.668859
+        """
         try:
-            # Remove o 'Z' do final se existir
-            if date_str.endswith('Z'):
-                date_str = date_str[:-1]
+            # Normaliza a string removendo espaços extras
+            date_str = date_str.strip()
             
-            # Parse da data ISO (formato: 2022-09-11T21:00:08)
+            # Remove o 'Z' do final se existir (timezone UTC)
+            if date_str.endswith('Z'):
+                date_str = date_str[:-1] + '+00:00'
+            
+            # Substitui espaço por 'T' se necessário (formato ISO padrão)
+            # datetime.fromisoformat() aceita espaço, mas 'T' é mais seguro
+            if ' ' in date_str and 'T' not in date_str:
+                date_str = date_str.replace(' ', 'T', 1)
+            
+            # Parse da data ISO (fromisoformat suporta frações de segundos automaticamente)
             dt = datetime.fromisoformat(date_str)
             formatted_date = dt.strftime("%d/%m/%Y às %H:%M:%S")
             return f"Meme criado em {formatted_date}"
