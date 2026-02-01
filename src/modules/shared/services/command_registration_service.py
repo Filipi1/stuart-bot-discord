@@ -1,5 +1,5 @@
 import discord
-from typing import Dict
+from typing import Dict, Optional
 from modules.shared.adapters import BotCommand
 from modules.shared.services import CommandDiscoveryService
 from modules.shared.services.requests.exceptions import HttpException
@@ -30,10 +30,28 @@ class CommandRegistrationService:
 
         self.tree.add_command(discord_command)
 
-    async def _handle_error(self, interaction: discord.Interaction, error: Exception, command_name: str) -> None:
+    async def _handle_error(
+        self, interaction: discord.Interaction, error: Exception, command_name: str
+    ) -> None:
         """Trata erros e envia resposta ao Discord"""
+        # Não exibir erro ao usuário quando a interação já foi respondida (40060);
+        # evita mensagem confusa e possível double-ack.
+        if (
+            isinstance(error, discord.HTTPException)
+            and getattr(error, "code", None) == 40060
+        ):
+            print(
+                f"[{command_name}] Interação já reconhecida (40060), suprimindo mensagem de erro."
+            )
+            return
+        if "already been acknowledged" in str(error).lower():
+            print(
+                f"[{command_name}] Interação já reconhecida, suprimindo mensagem de erro."
+            )
+            return
+
         print(f"Erro ao executar comando {command_name}: {error}")
-        
+
         # Determina a mensagem de erro baseada no tipo de exceção
         if isinstance(error, HttpException):
             if error.status_code == 404:
@@ -47,7 +65,9 @@ class CommandRegistrationService:
             else:
                 error_message = f"❌ Erro HTTP {error.status_code}: {error.message}"
         else:
-            error_message = "❌ Ocorreu um erro ao processar o comando. Tente novamente mais tarde."
+            error_message = (
+                "❌ Ocorreu um erro ao processar o comando. Tente novamente mais tarde."
+            )
 
         # Verifica se já foi feito o defer/response
         try:
@@ -88,6 +108,24 @@ class CommandRegistrationService:
             # Comando com múltiplos parâmetros - cria callback com todos os parâmetros
             param_names = option_names
             if len(param_names) == 2:
+                # Segundo parâmetro opcional (ex: /novomeme title description?)
+                if not command.options[1].required:
+
+                    async def callback(
+                        interaction: discord.Interaction,
+                        title: str,
+                        description: Optional[str] = None,
+                    ):
+                        try:
+                            await command.process(
+                                interaction,
+                                title=title,
+                                description=description or "",
+                            )
+                        except Exception as e:
+                            await self._handle_error(interaction, e, command.name)
+
+                    return callback
 
                 async def callback(
                     interaction: discord.Interaction, param1: str = "", param2: str = ""

@@ -10,7 +10,7 @@ class AuthService(InfraServiceAdapter):
 
     async def get_identifier_token(self, identifier: str) -> str:
         response = await self.__http_service.request(
-            f"v1/auth",
+            "v1/auth",
             HTTPMethod.POST,
             body={
                 "identifier": identifier,

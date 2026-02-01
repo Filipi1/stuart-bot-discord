@@ -1,4 +1,6 @@
 from http import HTTPMethod
+from typing import Optional
+
 from modules.meme.dtos.fetch_current_memes_count.fetch_memes_status_response_dto import (
     FetchMemesStatusResponseDto,
 )
@@ -14,9 +16,7 @@ class MemeService(InfraServiceAdapter):
 
     async def get_meme(self, request_token: str) -> MemeEntity:
         response = await self.__http_service.request(
-            "v1/meme",
-            HTTPMethod.GET,
-            headers={"X-Request-Token": request_token}
+            "v1/meme", HTTPMethod.GET, headers={"X-Request-Token": request_token}
         )
         return MemeEntity(**response)
 
@@ -26,3 +26,24 @@ class MemeService(InfraServiceAdapter):
             HTTPMethod.GET,
         )
         return FetchMemesStatusResponseDto(**response)
+
+    async def create_meme(
+        self,
+        title: str,
+        description: Optional[str],
+        image_bytes: bytes,
+        image_filename: str,
+        content_type: str,
+    ) -> dict:
+        data: dict[str, str] = {"title": title}
+        if description:
+            data["description"] = description
+        files = {
+            "image": (image_filename, image_bytes, content_type),
+        }
+        return await self.__http_service.request_multipart(
+            "v1/meme",
+            HTTPMethod.POST,
+            data=data,
+            files=files,
+        )

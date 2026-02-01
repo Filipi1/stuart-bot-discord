@@ -1,10 +1,18 @@
-from modules.auth.services.domain.generate_identifier_token_service import GenerateIdentifierTokenDomainService
-from src.modules.auth.dtos.authenticate import AuthenticateRequestDto, AuthenticateResponseDto
+from modules.auth.services.domain.generate_identifier_token_service import (
+    GenerateIdentifierTokenDomainService,
+)
+from src.modules.auth.dtos.authenticate import (
+    AuthenticateRequestDto,
+    AuthenticateResponseDto,
+)
 
 from src.modules.shared.adapters import ApplicationService
 
+
 class AuthenticateApplicationService(ApplicationService):
-    def __init__(self, generate_identifier_token_service: GenerateIdentifierTokenDomainService):
+    def __init__(
+        self, generate_identifier_token_service: GenerateIdentifierTokenDomainService
+    ):
         self.__generate_identifier_token_service = generate_identifier_token_service
         super().__init__(AuthenticateApplicationService.__name__)
 

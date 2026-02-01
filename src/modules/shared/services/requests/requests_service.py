@@ -1,5 +1,5 @@
 from http import HTTPMethod
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, Tuple
 import requests
 from requests.exceptions import RequestException
 
@@ -43,13 +43,58 @@ class RequestsService(HttpAdapter):
             self.__logger.error(f"Erro na requisição: {request_error}")
             raise request_error
 
+    async def request_multipart(
+        self,
+        path: str,
+        method: HTTPMethod,
+        data: Dict[str, str],
+        files: Dict[str, Tuple[str, bytes, str]],
+        headers: Optional[dict] = None,
+    ) -> Dict[str, Any]:
+        url = f"{self.__base_url}{path}"
+        try:
+            self.__logger.info(f"Requesting {method.value} (multipart) - {url}...")
+            files_tuple = {
+                name: (filename, content, content_type)
+                for name, (filename, content, content_type) in files.items()
+            }
+            if method != HTTPMethod.POST:
+                raise NotImplementedError(
+                    f"Multipart suporta apenas POST, recebido: {method}"
+                )
+            response = requests.post(
+                url,
+                data=data,
+                files=files_tuple,
+                headers=headers,
+                timeout=30,
+            )
+            return self.__get_response(response)
+        except RequestException as request_error:
+            self.__logger.error(f"Erro na requisição multipart: {request_error}")
+            raise request_error
+
+    async def request_image_bytes(
+        self,
+        url: str,
+    ) -> bytes:
+        try:
+            response = requests.get(url, timeout=30)
+            return response.content
+        except RequestException as request_error:
+            self.__logger.error(f"Erro ao baixar imagem: {request_error}")
+            raise request_error
+
     def __get_response(self, response: requests.Response) -> Dict[str, Any]:
         if 200 <= response.status_code <= 299:
-            return response.json()
+            return response.json() if response.content else {}
         return self.__exception_handler(response)
 
     def __exception_handler(self, response: requests.Response) -> None:
-        self.__logger.dict_to_table(response.json())
+        try:
+            self.__logger.dict_to_table(response.json())
+        except Exception:
+            pass
         result = response.text
         self.__logger.error(f"[{response.status_code}] Request failed: {result}")
         raise HttpException(response.status_code, result)

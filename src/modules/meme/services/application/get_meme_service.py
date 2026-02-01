@@ -17,11 +17,13 @@ class GetMemeApplicationService(DomainService):
         self.logger.dict_to_table(entity.model_dump())
 
         embed = discord.Embed(
-            title=f"Você é {entity.title}",
+            title=f"Tu é {entity.title}",
             description=entity.description,
             color=0xFF6B6B,
         )
 
         embed.set_image(url=entity.image)
-        embed.set_footer(text=f"🧘 {entity.earned_times} personificações.")
+        embed.set_footer(
+            text=f"🧘 {entity.earned_times} vezes que a galera personificou isso"
+        )
         return embed

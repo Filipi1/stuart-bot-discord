@@ -18,7 +18,7 @@ class GetCoachApplicationService(DomainService):
 
         formatted_author = entity.format_author()
         title = f'*"{entity.message}"*'
-        description = f'-- {formatted_author}'
+        description = f"-- {formatted_author}"
 
         embed = discord.Embed(
             title=title,

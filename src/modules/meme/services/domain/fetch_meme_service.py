@@ -1,4 +1,6 @@
-from modules.auth.services.domain.generate_identifier_token_service import GenerateIdentifierTokenDomainService
+from modules.auth.services.domain.generate_identifier_token_service import (
+    GenerateIdentifierTokenDomainService,
+)
 from modules.meme.entities.meme_entity import MemeEntity
 from modules.meme.services.infra.meme_service import MemeService
 from modules.shared.adapters import DomainService
