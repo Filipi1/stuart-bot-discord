@@ -32,6 +32,8 @@ class Containers:
     def __init__(self):
         # Domain
         self.__settings = Settings()
+        self.discord_guild_id = self.__settings.DISCORD_GUILD_ID
+        print(f"Discord guild id: {self.discord_guild_id}")
         self.__http_service = RequestsService(
             base_url=self.__settings.STUART_API_BASE_URL
         )

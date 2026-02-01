@@ -1,5 +1,6 @@
 import discord
 from typing import Dict, Optional
+
 from modules.shared.adapters import BotCommand
 from modules.shared.services import CommandDiscoveryService
 from modules.shared.services.requests.exceptions import HttpException
@@ -147,10 +148,15 @@ class CommandRegistrationService:
 
                 return callback
 
-    async def sync_commands(self) -> None:
+    async def sync_commands(self, guild_id: Optional[int] = None) -> None:
         try:
+            if guild_id:
+                print(f"Sincronizando comandos para o servidor {guild_id}")
+                synced = await self.tree.sync(guild=discord.Object(id=guild_id))
+                for command in synced:
+                    print(f"Comando {command.name} sincronizado (guild {guild_id})")
             synced = await self.tree.sync()
             for command in synced:
-                print(f"Comando {command.name} sincronizado")
+                print(f"Comando {command.name} sincronizado (global)")
         except Exception as e:
             print(f"Erro ao sincronizar comandos: {e}")
