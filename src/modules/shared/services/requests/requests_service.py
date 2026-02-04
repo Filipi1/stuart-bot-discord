@@ -1,3 +1,4 @@
+import asyncio
 from http import HTTPMethod
 from typing import Dict, Optional, Any, Tuple
 import requests
@@ -25,23 +26,38 @@ class RequestsService(HttpAdapter):
         url = f"{self.__base_url}{path}"
         try:
             self.__logger.info(f"Requesting {method.value} - {url}...")
-            match method:
-                case HTTPMethod.GET:
-                    response = requests.get(
-                        url, headers=headers, params=params, json=body
-                    )
-                case HTTPMethod.POST:
-                    response = requests.post(
-                        url, headers=headers, params=params, json=body
-                    )
-                case _:
-                    raise NotImplementedError(f"Método HTTP {method} não implementado")
-
+            response = await asyncio.to_thread(
+                self._request_sync,
+                url,
+                method,
+                headers,
+                params,
+                body,
+            )
             return self.__get_response(response)
-
         except RequestException as request_error:
             self.__logger.error(f"Erro na requisição: {request_error}")
             raise request_error
+
+    def _request_sync(
+        self,
+        url: str,
+        method: HTTPMethod,
+        headers: Optional[dict],
+        params: Optional[dict],
+        body: Optional[dict],
+    ) -> requests.Response:
+        match method:
+            case HTTPMethod.GET:
+                return requests.get(
+                    url, headers=headers, params=params, json=body, timeout=30
+                )
+            case HTTPMethod.POST:
+                return requests.post(
+                    url, headers=headers, params=params, json=body, timeout=30
+                )
+            case _:
+                raise NotImplementedError(f"Método HTTP {method} não implementado")
 
     async def request_multipart(
         self,
@@ -54,15 +70,16 @@ class RequestsService(HttpAdapter):
         url = f"{self.__base_url}{path}"
         try:
             self.__logger.info(f"Requesting {method.value} (multipart) - {url}...")
-            files_tuple = {
-                name: (filename, content, content_type)
-                for name, (filename, content, content_type) in files.items()
-            }
             if method != HTTPMethod.POST:
                 raise NotImplementedError(
                     f"Multipart suporta apenas POST, recebido: {method}"
                 )
-            response = requests.post(
+            files_tuple = {
+                name: (filename, content, content_type)
+                for name, (filename, content, content_type) in files.items()
+            }
+            response = await asyncio.to_thread(
+                requests.post,
                 url,
                 data=data,
                 files=files_tuple,
@@ -79,7 +96,7 @@ class RequestsService(HttpAdapter):
         url: str,
     ) -> bytes:
         try:
-            response = requests.get(url, timeout=30)
+            response = await asyncio.to_thread(requests.get, url, timeout=30)
             return response.content
         except RequestException as request_error:
             self.__logger.error(f"Erro ao baixar imagem: {request_error}")
