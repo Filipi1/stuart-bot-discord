@@ -57,7 +57,10 @@ class Containers:
         self.__image_service = ImageService(http_service=self.__http_service)
 
         # Application
-        self.get_meme = GetMemeApplicationService(fetch_meme_service=self.__fetch_meme)
+        self.get_meme = GetMemeApplicationService(
+            fetch_meme_service=self.__fetch_meme,
+            image_service=self.__image_service,
+        )
         self.get_memes_status = GetMemesStatusApplicationService(
             fetch_memes_status_service=self.__fetch_memes_status
         )
