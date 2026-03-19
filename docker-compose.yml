@@ -7,6 +7,20 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    ports:
+      - 10300:10300
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request, os; p=os.environ.get('PORT','10300'); urllib.request.urlopen(f'http://127.0.0.1:{p}/health-check')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     networks:
       - stuart-network
 

@@ -1,5 +1,6 @@
 import discord
 from modules.shared.services import CommandRegistrationService
+from modules.shared.services.health_check_server import start_health_check_server
 from modules.shared.settings.settings import Settings
 from container import container
 
@@ -45,4 +46,6 @@ intents.message_content = True
 intents.voice_states = True
 
 client = StuartBot(intents=intents)
-client.run(Settings().BOT_TOKEN)
+settings = Settings()
+start_health_check_server(port=settings.PORT)
+client.run(settings.BOT_TOKEN)
