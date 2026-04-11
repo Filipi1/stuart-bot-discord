@@ -35,14 +35,15 @@ class CommandRegistrationService:
         self, interaction: discord.Interaction, error: Exception, command_name: str
     ) -> None:
         """Trata erros e envia resposta ao Discord"""
-        # Não exibir erro ao usuário quando a interação já foi respondida (40060);
-        # evita mensagem confusa e possível double-ack.
+        # Não exibir erro ao usuário quando a interação já foi respondida (40060)
+        # ou quando é desconhecida/expirada (10062);
+        # evita mensagem confusa e erros em cascata.
         if (
             isinstance(error, discord.HTTPException)
-            and getattr(error, "code", None) == 40060
+            and getattr(error, "code", None) in (40060, 10062)
         ):
             print(
-                f"[{command_name}] Interação já reconhecida (40060), suprimindo mensagem de erro."
+                f"[{command_name}] Interação já reconhecida ou expirada ({getattr(error, 'code', None)}), suprimindo mensagem de erro."
             )
             return
         if "already been acknowledged" in str(error).lower():
@@ -77,7 +78,7 @@ class CommandRegistrationService:
                 await interaction.followup.send(error_message, ephemeral=True)
             else:
                 # Se ainda não foi feito, usa response
-                await interaction.response.send(error_message, ephemeral=True)
+                await interaction.response.send_message(error_message, ephemeral=True)
         except Exception as e:
             print(f"Erro ao enviar mensagem de erro ao Discord: {e}")
 
