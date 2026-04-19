@@ -10,13 +10,15 @@ class StuartBot(discord.Client):
         super().__init__(*args, **kwargs)
         self.command_service = CommandRegistrationService(self)
 
+    async def setup_hook(self):
+        self.command_service.register_all_commands()
+        await self.command_service.sync_commands(guild_id=container.discord_guild_id)
+
     async def on_ready(self):
         print(f"Logged on as {self.user}!")
-        self.command_service.register_all_commands()
         memes_count = await container.get_memes_count.process()
         activity = discord.CustomActivity(name=f"{memes_count} memes")
         await self.change_presence(activity=activity)
-        await self.command_service.sync_commands(guild_id=container.discord_guild_id)
 
     async def on_interaction(self, interaction: discord.Interaction):
         if interaction.type != discord.InteractionType.component:

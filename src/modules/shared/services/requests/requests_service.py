@@ -97,6 +97,8 @@ class RequestsService(HttpAdapter):
     ) -> bytes:
         try:
             response = await asyncio.to_thread(requests.get, url, timeout=30)
+            if not (200 <= response.status_code <= 299):
+                self.__exception_handler(response)
             return response.content
         except RequestException as request_error:
             self.__logger.error(f"Erro ao baixar imagem: {request_error}")
