@@ -21,17 +21,12 @@ class StuartBot(discord.Client):
         await self.change_presence(activity=activity)
 
     async def on_interaction(self, interaction: discord.Interaction):
-        if interaction.type != discord.InteractionType.component:
-            await self.command_service.tree._call(interaction)
-            return
-        custom_id = (interaction.data or {}).get("custom_id", "")
-        if custom_id.startswith("novomeme_confirm_"):
-            await container.create_meme.handle_confirm(interaction)
-            return
-        if custom_id.startswith("novomeme_cancel_"):
-            await container.create_meme.handle_cancel(interaction)
-            return
-        await self.command_service.tree._call(interaction)
+        if interaction.type == discord.InteractionType.component:
+            custom_id = (interaction.data or {}).get("custom_id", "")
+            if custom_id.startswith("novomeme_confirm_"):
+                await container.create_meme.handle_confirm(interaction)
+            elif custom_id.startswith("novomeme_cancel_"):
+                await container.create_meme.handle_cancel(interaction)
 
     async def on_message(self, message):
         if str(self.user.id) not in str(message.content):
