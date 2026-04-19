@@ -99,7 +99,17 @@ class RequestsService(HttpAdapter):
             response = await asyncio.to_thread(requests.get, url, timeout=30)
             if not (200 <= response.status_code <= 299):
                 self.__exception_handler(response)
-            return response.content
+
+            content_type = response.headers.get("Content-Type", "").lower()
+            if "text/html" in content_type or "application/json" in content_type:
+                self.__logger.error(f"A API retornou formato inválido ({content_type}): {response.text}")
+                raise HttpException(500, f"Formato inválido: {content_type}")
+
+            content = response.content
+            if not content:
+                self.__logger.error("A API retornou uma imagem vazia (0 bytes).")
+                raise HttpException(500, "Imagem com 0 bytes")
+            return content
         except RequestException as request_error:
             self.__logger.error(f"Erro ao baixar imagem: {request_error}")
             raise request_error

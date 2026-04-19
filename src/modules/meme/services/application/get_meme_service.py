@@ -6,9 +6,17 @@ from modules.shared.adapters import DomainService
 from modules.shared.services.image.image_service import ImageService
 
 
+import urllib.parse
 def _filename_from_url(url: str) -> str:
-    name = url.rstrip("/").split("/")[-1]
-    return name if name and "." in name else "meme.jpg"
+    clean_url = url.split("?")[0].rstrip("/")
+    name = clean_url.split("/")[-1]
+    name = urllib.parse.unquote(name)
+    ext = "jpg"
+    if "." in name:
+        ext = name.split(".")[-1].lower()
+        if len(ext) > 4 or not ext.isalnum():
+            ext = "jpg"
+    return f"meme.{ext}"
 
 
 class GetMemeApplicationService(DomainService):
@@ -24,6 +32,7 @@ class GetMemeApplicationService(DomainService):
     async def process(self, username: str) -> tuple[discord.Embed, discord.File]:
         entity: MemeEntity = await self.__fetch_meme_service.process(username)
         self.logger.dict_to_table(entity.model_dump())
+        self.logger.info(f"Meme sorteado: {entity.title} | Imagem: {entity.image}")
 
         image_bytes = await self.__image_service.download_image(entity.image)
         filename = _filename_from_url(entity.image)
