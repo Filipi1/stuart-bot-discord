@@ -4,7 +4,6 @@ metadata:
   labels:
     app: pk-bkd-bot-stuart
   name: pk-bkd-bot-stuart
-  namespace: discord
 spec:
   replicas: 1
   selector:
@@ -15,31 +14,17 @@ spec:
       labels:
         app: pk-bkd-bot-stuart
     spec:
-      imagePullSecrets:
-        - name: ghcr-api-pull
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - pk-bkd-bot-stuart
-                topologyKey: "kubernetes.io/hostname"
       containers:
         - name: pk-bkd-bot-stuart
-          image: ghcr.io/filipi1/stuart-bot-discord
-          imagePullPolicy: Always
+          image: ghcr.io/prokicon/pk-bot-discord-stuart
+          imagePullPolicy: IfNotPresent
           resources:
+            limits:
+              cpu: 200m
+              memory: 1Gi
             requests:
               cpu: 100m
               memory: 512Mi
-            limits:
-              cpu: 200m
-              memory: 1G
           ports:
             - name: http
               containerPort: 10300
@@ -49,6 +34,8 @@ spec:
           env:
             - name: PORT
               value: "10300"
+            - name: APP_ENV
+              value: production
           startupProbe:
             httpGet:
               path: /health-check

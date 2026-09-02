@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pk-bkd-bot-stuart
+spec:
+  template:
+    spec:
+      imagePullSecrets:
+        - name: ghcr-api-pull
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - pk-bkd-bot-stuart
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: pk-bkd-bot-stuart
+          imagePullPolicy: Always
+          env:
+            - name: APP_ENV
+              value: development
+            - name: STUART_API_BASE_URL
+              value: http://pk-bkd-ms-api-stuart.stuart.svc.cluster.local
