@@ -26,4 +26,4 @@ spec:
             - name: APP_ENV
               value: development
             - name: STUART_API_BASE_URL
-              value: http://pk-bkd-ms-api-stuart.stuart.svc.cluster.local
+              value: http://pk-bkd-ms-api-stuart.stuart.svc.cluster.local/
